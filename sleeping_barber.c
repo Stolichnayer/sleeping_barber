@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-void * grocer_function(void *idp);
+void * barber_function(void *idp);
 void * customer_function(void *idp);
 void service_customer();
 void * make_customer_function();
@@ -16,7 +16,7 @@ void * make_customer_function();
 pthread_mutex_t srvCust;
 
 /* Semaphores */
-sem_t grocer_ready; 
+sem_t barber_ready; 
 sem_t customer_ready;
 sem_t modifySeats;
 
@@ -28,7 +28,7 @@ int available_seats;
 int no_served_custs = 0;
 time_t waiting_time_sum;
 
-void * grocer_function(void *idp)
+void * barber_function(void *idp)
 {    
     int counter = 0;
     
@@ -46,10 +46,10 @@ void * grocer_function(void *idp)
         /* Unlock semaphore "modifySeats" */
         sem_post(&modifySeats);
 
-        /*Unlock semaphore "grocer_ready" - set grocer ready to serve" */
-        sem_post(&grocer_ready);        
+        /*Unlock semaphore "barber_ready" - set barber ready to serve" */
+        sem_post(&barber_ready);        
 
-        /* Lock mutex "srvCust - protect service from the same grocer from other threads */
+        /* Lock mutex "srvCust - protect service from the same barber from other threads */
         pthread_mutex_lock(&srvCust);
 
         /* serve customer */
@@ -92,8 +92,8 @@ void * customer_function(void *idp)
         /* Unlock semaphore "modifySeats" */
         sem_post(&modifySeats);         
 
-        /* Lock semaphore "grocer_ready" - wait for grocer to get ready */
-        sem_wait(&grocer_ready); 
+        /* Lock semaphore "barber_ready" - wait for barber to get ready */
+        sem_wait(&barber_ready); 
 
         /* Stop waiting-time counter */ 
         gettimeofday(&stop, NULL);
@@ -148,8 +148,8 @@ int main(){
 	/* Initialization, should only be called once. */
     srand(time(NULL));   
 
-    /* Grocer 1 thread */
-    pthread_t grocer_1;
+    /* Barber 1 thread */
+    pthread_t barber_1;
 
     /* Thread that creates customers */
     pthread_t customer_maker;
@@ -161,7 +161,7 @@ int main(){
 
     /* Initialize semaphores */
     sem_init(&customer_ready, 0, 0);
-    sem_init(&grocer_ready, 0, 0);
+    sem_init(&barber_ready, 0, 0);
     sem_init(&modifySeats, 0, 1);
     
     printf("Please enter the number of seats: \n");
@@ -172,8 +172,8 @@ int main(){
     
     available_seats = chair_cnt; 
     
-    /* Create grocer thread*/
-    tmp = pthread_create(&grocer_1, NULL, (void *)grocer_function, NULL);  
+    /* Create barber thread*/
+    tmp = pthread_create(&barber_1, NULL, (void *)barber_function, NULL);  
     if(tmp)
         printf("Failed to create thread."); 
     
@@ -183,7 +183,7 @@ int main(){
         printf("Failed to create thread."); 
      
    /* Wait for threads to finish */
-    pthread_join(grocer_1, NULL);
+    pthread_join(barber_1, NULL);
     pthread_join(customer_maker, NULL);
         
     printf("\n------------------------------------------------\n");
