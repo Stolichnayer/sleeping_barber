@@ -9,7 +9,7 @@
 
 void *barber_function(void *idp);
 void *customer_function(void *idp);
-void service_customer();
+void serve_customer();
 void *make_customer_function();
     
 /* Mutex */
@@ -53,7 +53,7 @@ void *barber_function(void *idp)
         pthread_mutex_lock(&srvCust);
 
         /* Serve customer */
-        service_customer();    
+        serve_customer();    
 
         /* Unlock mutex "srvCust" - finished service */
         pthread_mutex_unlock(&srvCust);
@@ -115,7 +115,7 @@ void *customer_function(void *idp)
     pthread_exit(NULL);
 }
 
-void service_customer() {
+void serve_customer() {
     /* Random number between 0 and 400 (miliseconds) */
     int s = rand() % 401; 
 	
